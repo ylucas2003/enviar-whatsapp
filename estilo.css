@@ -1,0 +1,160 @@
+:root {
+  --fundo: #f6f5f2;
+  --texto: #1d1d1b;
+  --suave: #5f5e5a;
+  --caixa: #ffffff;
+  --borda: #e2e0da;
+  --verde: #0b6e4f;
+  --verde-texto: #ffffff;
+  --verde-claro: #e3f1ea;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --fundo: #141413;
+    --texto: #f1efe8;
+    --suave: #a9a69c;
+    --caixa: #1f1f1d;
+    --borda: #34332f;
+    --verde: #2fb37f;
+    --verde-texto: #06120d;
+    --verde-claro: #16261f;
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--fundo);
+  color: var(--texto);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.45;
+}
+
+main {
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 20px 16px 40px;
+}
+
+.igreja {
+  margin: 0;
+  color: var(--suave);
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+h1 {
+  margin: 6px 0 2px;
+  font-size: 22px;
+  line-height: 1.2;
+}
+
+.quando {
+  margin: 0 0 16px;
+  color: var(--suave);
+}
+
+.arte {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 10px;
+  border: 1px solid var(--borda);
+}
+
+.enviar {
+  display: block;
+  width: 100%;
+  margin: 16px 0 0;
+  padding: 16px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--verde);
+  color: var(--verde-texto);
+  font: inherit;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.enviar:active { transform: scale(0.99); }
+
+.aviso {
+  min-height: 1.45em;
+  margin: 10px 0 0;
+  color: var(--suave);
+  font-size: 14px;
+}
+
+.aviso:not(:empty) {
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--verde-claro);
+  color: var(--texto);
+}
+
+h2 {
+  margin: 24px 0 8px;
+  font-size: 15px;
+  color: var(--suave);
+}
+
+.mensagem {
+  margin: 0;
+  padding: 12px 14px;
+  border: 1px solid var(--borda);
+  border-radius: 10px;
+  background: var(--caixa);
+  font: inherit;
+  font-size: 15px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.extras {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.extras button,
+.extras a {
+  flex: 1;
+  padding: 12px;
+  border: 1px solid var(--borda);
+  border-radius: 10px;
+  background: var(--caixa);
+  color: var(--texto);
+  font: inherit;
+  font-size: 15px;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.lista {
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lista li + li { margin-top: 8px; }
+
+.lista a {
+  display: block;
+  padding: 12px 14px;
+  border: 1px solid var(--borda);
+  border-radius: 10px;
+  background: var(--caixa);
+  color: var(--texto);
+  text-decoration: none;
+}
+
+.lista span {
+  display: block;
+  color: var(--suave);
+  font-size: 14px;
+}
