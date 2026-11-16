@@ -4,7 +4,7 @@
 Cada programação é uma pasta AAAA-MM-DD-nome com:
   titulo.txt    linha 1: nome da programação; linha 2: dia e horário
   mensagem.txt  a mensagem do WhatsApp, igual ao bloco de código do Notion
-  arte.png      a arte de post ou feed, nunca o story (pode ser .jpg)
+  arte.png      a arte de post ou feed (pode ser .jpg); no Resumo semanal, o story
 
 Sem arte, a página fica só com a mensagem e o botão abre o WhatsApp com o texto.
 
