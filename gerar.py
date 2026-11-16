@@ -6,6 +6,8 @@ Cada programação é uma pasta AAAA-MM-DD-nome com:
   mensagem.txt  a mensagem do WhatsApp, igual ao bloco de código do Notion
   arte.png      a arte de post ou feed, nunca o story (pode ser .jpg)
 
+Sem arte, a página fica só com a mensagem e o botão abre o WhatsApp com o texto.
+
 Rode `python3 gerar.py` depois de criar ou mudar uma pasta.
 """
 import html
@@ -24,23 +26,20 @@ PAGINA = """<!doctype html>
 <title>{titulo} · Enviar no WhatsApp</title>
 <meta property="og:title" content="{titulo}">
 <meta property="og:description" content="{quando}">
-<meta property="og:image" content="{endereco}/{pasta}/{arte}">
-<link rel="stylesheet" href="../estilo.css">
+{og_imagem}<link rel="stylesheet" href="../estilo.css">
 </head>
 <body>
 <main>
   <p class="igreja">IEADTC Vila Velha III</p>
   <h1>{titulo}</h1>
   <p class="quando">{quando}</p>
-  <img class="arte" src="{arte}" alt="Arte de divulgação: {titulo}">
-  <button id="enviar" class="enviar" type="button" data-arte="{arte}" data-nome="{nome}">Enviar no WhatsApp</button>
+{imagem}  <button id="enviar" class="enviar" type="button" data-arte="{arte}" data-nome="{nome}">Enviar no WhatsApp</button>
   <p id="aviso" class="aviso" role="status"></p>
-  <h2>Mensagem que vai junto</h2>
+  <h2>{titulo_mensagem}</h2>
   <pre id="mensagem" class="mensagem">{mensagem}</pre>
   <div class="extras">
     <button id="copiar" type="button">Copiar mensagem</button>
-    <a href="{arte}" download="{nome}">Baixar arte</a>
-  </div>
+{baixar}  </div>
 </main>
 <script src="../enviar.js"></script>
 </body>
@@ -73,7 +72,7 @@ def achar_arte(pasta):
         arte = pasta / ("arte" + extensao)
         if arte.exists():
             return arte
-    raise SystemExit(f"{pasta.name}: falta a arte (arte.png ou arte.jpg)")
+    return None
 
 
 def gerar():
@@ -83,16 +82,26 @@ def gerar():
         titulo, quando = linhas[0].strip(), linhas[1].strip()
         mensagem = (pasta / "mensagem.txt").read_text(encoding="utf-8").rstrip("\n")
         arte = achar_arte(pasta)
-        nome = pasta.name + arte.suffix
+        if arte:
+            nome = pasta.name + arte.suffix
+            og_imagem = f'<meta property="og:image" content="{ENDERECO}/{pasta.name}/{arte.name}">\n'
+            imagem = f'  <img class="arte" src="{arte.name}" alt="Arte de divulgação: {html.escape(titulo)}">\n'
+            baixar = f'    <a href="{arte.name}" download="{nome}">Baixar arte</a>\n'
+            titulo_mensagem = "Mensagem que vai junto"
+        else:
+            nome = og_imagem = imagem = baixar = ""
+            titulo_mensagem = "Mensagem"
         (pasta / "index.html").write_text(
             PAGINA.format(
                 titulo=html.escape(titulo),
                 quando=html.escape(quando),
-                endereco=ENDERECO,
-                pasta=pasta.name,
-                arte=arte.name,
+                og_imagem=og_imagem,
+                imagem=imagem,
+                arte=arte.name if arte else "",
                 nome=nome,
+                titulo_mensagem=titulo_mensagem,
                 mensagem=html.escape(mensagem),
+                baixar=baixar,
             ),
             encoding="utf-8",
         )

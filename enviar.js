@@ -1,5 +1,6 @@
 // Botão "Enviar no WhatsApp": manda a arte com a mensagem de legenda.
 // No celular abre o menu de compartilhar; no computador baixa a arte e abre o WhatsApp Web com a mensagem.
+// Página sem arte: o botão só abre o WhatsApp com a mensagem.
 (function () {
   var botao = document.getElementById('enviar');
   var aviso = document.getElementById('aviso');
@@ -12,17 +13,19 @@
 
   // A arte é carregada antes do toque: o iPhone só abre o menu de compartilhar
   // se ele for chamado logo no toque, sem esperar download.
-  fetch(caminhoArte)
-    .then(function (resposta) {
-      if (!resposta.ok) throw new Error('arte ' + resposta.status);
-      return resposta.blob();
-    })
-    .then(function (blob) {
-      arquivo = new File([blob], nomeArte, { type: blob.type || 'image/png' });
-    })
-    .catch(function () {
-      arteFalhou = true;
-    });
+  if (caminhoArte) {
+    fetch(caminhoArte)
+      .then(function (resposta) {
+        if (!resposta.ok) throw new Error('arte ' + resposta.status);
+        return resposta.blob();
+      })
+      .then(function (blob) {
+        arquivo = new File([blob], nomeArte, { type: blob.type || 'image/png' });
+      })
+      .catch(function () {
+        arteFalhou = true;
+      });
+  }
 
   function avisar(texto) {
     aviso.textContent = texto;
@@ -56,6 +59,17 @@
   botao.addEventListener('click', function () {
     // Copia antes de compartilhar: se o WhatsApp do iPhone perder o texto, é só colar na legenda.
     copiarMensagem();
+
+    if (!caminhoArte) {
+      var link = 'https://wa.me/?text=' + encodeURIComponent(mensagem);
+      avisar('O WhatsApp abriu com a mensagem. É só escolher o contato ou o grupo.');
+      if (celular) {
+        window.location.href = link;
+      } else {
+        window.open(link, '_blank');
+      }
+      return;
+    }
 
     if (!celular) {
       enviarPeloLink();
