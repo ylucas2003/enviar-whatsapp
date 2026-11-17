@@ -10,7 +10,8 @@ Sem arte, a página fica só com a mensagem e o botão abre o WhatsApp com o tex
 
 Story do Instagram é uma pasta AAAA-MM-DD-nome-story com:
   titulo.txt    linha 1: "Story · nome"; linha 2: dia e horário
-  sugestao.txt  "Música: nome · artista" e "Na imagem: o que pôr em cima" (figurinha, texto)
+  sugestao.txt  "Música: nome · artista", "Trecho: que parte usar", "Por que: a ligação com o culto"
+                e "Na imagem: o que pôr em cima" (figurinha, texto); só "Música" e "Na imagem" são obrigatórias
   arte.png      o story
 
 A página do story tem o botão "Compartilhar no Instagram", que abre o menu de compartilhar
@@ -85,7 +86,12 @@ PAGINA_STORY = """<!doctype html>
 </html>
 """
 
-ROTULOS = {"Música": "Música de fundo", "Na imagem": "Em cima da imagem"}
+ROTULOS = {
+    "Música": "Música de fundo",
+    "Trecho": "Parte da música",
+    "Por que": "Por que essa música",
+    "Na imagem": "Em cima da imagem",
+}
 
 INICIO = """<!doctype html>
 <html lang="pt-BR">
