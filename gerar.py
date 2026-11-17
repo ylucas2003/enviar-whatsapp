@@ -8,6 +8,14 @@ Cada programação é uma pasta AAAA-MM-DD-nome com:
 
 Sem arte, a página fica só com a mensagem e o botão abre o WhatsApp com o texto.
 
+Story do Instagram é uma pasta AAAA-MM-DD-nome-story com:
+  titulo.txt    linha 1: "Story · nome"; linha 2: dia e horário
+  sugestao.txt  "Música: nome · artista" e "Na imagem: o que pôr em cima" (figurinha, texto)
+  arte.png      o story
+
+A página do story tem o botão "Compartilhar no Instagram", que abre o menu de compartilhar
+do celular com o story, e mostra as sugestões para quem for postar.
+
 Rode `python3 gerar.py` depois de criar ou mudar uma pasta.
 """
 import html
@@ -46,18 +54,51 @@ PAGINA = """<!doctype html>
 </html>
 """
 
+PAGINA_STORY = """<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{titulo} · Compartilhar no Instagram</title>
+<meta property="og:title" content="{titulo}">
+<meta property="og:description" content="{quando}">
+<meta property="og:image" content="{endereco}/{pasta}/{arte}">
+<link rel="stylesheet" href="../estilo.css">
+</head>
+<body>
+<main>
+  <p class="igreja">IEADTC Vila Velha III</p>
+  <h1>{titulo}</h1>
+  <p class="quando">{quando}</p>
+  <img class="arte" src="{arte}" alt="Story de divulgação: {titulo}">
+  <button id="compartilhar" class="enviar instagram" type="button" data-arte="{arte}" data-nome="{nome}">Compartilhar no Instagram</button>
+  <p id="aviso" class="aviso" role="status"></p>
+  <h2>Sugestões para o story</h2>
+  <dl class="sugestoes">
+{sugestoes}  </dl>
+  <div class="extras">
+{copiar_musica}    <a href="{arte}" download="{nome}">Baixar story</a>
+  </div>
+</main>
+<script src="../compartilhar.js"></script>
+</body>
+</html>
+"""
+
+ROTULOS = {"Música": "Música de fundo", "Na imagem": "Em cima da imagem"}
+
 INICIO = """<!doctype html>
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Enviar no WhatsApp · IEADTC Vila Velha III</title>
+<title>Enviar e compartilhar · IEADTC Vila Velha III</title>
 <link rel="stylesheet" href="estilo.css">
 </head>
 <body>
 <main>
   <p class="igreja">IEADTC Vila Velha III</p>
-  <h1>Enviar no WhatsApp</h1>
+  <h1>Enviar e compartilhar</h1>
   <ul class="lista">
 {itens}
   </ul>
@@ -75,11 +116,58 @@ def achar_arte(pasta):
     return None
 
 
+def ler_sugestoes(arquivo):
+    sugestoes = {}
+    for linha in arquivo.read_text(encoding="utf-8").splitlines():
+        chave, _, valor = linha.partition(":")
+        if valor.strip():
+            sugestoes[chave.strip()] = valor.strip()
+    return sugestoes
+
+
+def gerar_story(pasta, titulo, quando, arquivo):
+    arte = achar_arte(pasta)
+    if not arte:
+        raise SystemExit(f"{pasta.name}: falta a arte do story")
+    nome = pasta.name + arte.suffix
+    sugestoes = ler_sugestoes(arquivo)
+    itens = "".join(
+        f"    <dt>{rotulo}</dt>\n    <dd>{html.escape(sugestoes[chave])}</dd>\n"
+        for chave, rotulo in ROTULOS.items()
+        if chave in sugestoes
+    )
+    musica = sugestoes.get("Música", "")
+    busca = musica.replace(" · ", " ").replace("(hino)", "").strip()
+    copiar_musica = (
+        f'    <button id="copiar-musica" type="button" data-musica="{html.escape(busca)}">Copiar nome da música</button>\n'
+        if musica
+        else ""
+    )
+    (pasta / "index.html").write_text(
+        PAGINA_STORY.format(
+            titulo=html.escape(titulo),
+            quando=html.escape(quando),
+            endereco=ENDERECO,
+            pasta=pasta.name,
+            arte=arte.name,
+            nome=nome,
+            sugestoes=itens,
+            copiar_musica=copiar_musica,
+        ),
+        encoding="utf-8",
+    )
+
+
 def gerar():
     programacoes = []
     for pasta in sorted(p for p in RAIZ.iterdir() if p.is_dir() and PASTA.match(p.name)):
         linhas = (pasta / "titulo.txt").read_text(encoding="utf-8").strip().splitlines()
         titulo, quando = linhas[0].strip(), linhas[1].strip()
+        sugestao = pasta / "sugestao.txt"
+        if sugestao.exists():
+            gerar_story(pasta, titulo, quando, sugestao)
+            programacoes.append((pasta.name, titulo, quando))
+            continue
         mensagem = (pasta / "mensagem.txt").read_text(encoding="utf-8").rstrip("\n")
         arte = achar_arte(pasta)
         if arte:
@@ -112,7 +200,7 @@ def gerar():
         for nome, titulo, quando in reversed(programacoes)
     )
     (RAIZ / "index.html").write_text(INICIO.format(itens=itens), encoding="utf-8")
-    print(f"{len(programacoes)} programações geradas")
+    print(f"{len(programacoes)} páginas geradas")
 
 
 if __name__ == "__main__":

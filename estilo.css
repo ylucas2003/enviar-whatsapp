@@ -161,3 +161,28 @@ h2 {
   color: var(--suave);
   font-size: 14px;
 }
+
+.instagram {
+  background: linear-gradient(45deg, #f58529, #dd2a7b 50%, #8134af);
+  color: #ffffff;
+}
+
+.sugestoes {
+  margin: 0;
+  padding: 12px 14px;
+  border: 1px solid var(--borda);
+  border-radius: 10px;
+  background: var(--caixa);
+}
+
+.sugestoes dt {
+  color: var(--suave);
+  font-size: 14px;
+}
+
+.sugestoes dd {
+  margin: 2px 0 12px;
+  font-size: 16px;
+}
+
+.sugestoes dd:last-child { margin-bottom: 0; }
