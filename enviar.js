@@ -53,12 +53,14 @@
   function enviarPeloLink() {
     baixarArte();
     window.open('https://wa.me/?text=' + encodeURIComponent(mensagem), '_blank');
-    avisar('A arte foi baixada e o WhatsApp abriu com a mensagem. Escolha o contato e anexe a arte.');
+    avisar(mensagem
+      ? 'A arte foi baixada e o WhatsApp abriu com a mensagem. Escolha o contato e anexe a arte.'
+      : 'A arte foi baixada e o WhatsApp abriu. Escolha o contato e anexe a arte.');
   }
 
   botao.addEventListener('click', function () {
     // Copia antes de compartilhar: se o WhatsApp do iPhone perder o texto, é só colar na legenda.
-    copiarMensagem();
+    if (mensagem) copiarMensagem();
 
     if (!caminhoArte) {
       var link = 'https://wa.me/?text=' + encodeURIComponent(mensagem);
@@ -80,11 +82,13 @@
       return;
     }
 
-    var dados = arquivo ? { files: [arquivo], text: mensagem } : null;
+    var dados = arquivo ? (mensagem ? { files: [arquivo], text: mensagem } : { files: [arquivo] }) : null;
     if (dados && navigator.canShare && navigator.canShare(dados)) {
       navigator.share(dados).then(
         function () {
-          avisar('Pronto! Se a mensagem não foi junto com a arte, ela já está copiada: é só colar na legenda.');
+          avisar(mensagem
+            ? 'Pronto! Se a mensagem não foi junto com a arte, ela já está copiada: é só colar na legenda.'
+            : 'Pronto!');
         },
         function (erro) {
           if (erro && erro.name === 'AbortError') return;
@@ -96,7 +100,8 @@
     }
   });
 
-  document.getElementById('copiar').addEventListener('click', function () {
+  var botaoCopiar = document.getElementById('copiar');
+  if (botaoCopiar) botaoCopiar.addEventListener('click', function () {
     copiarMensagem().then(function (copiou) {
       avisar(copiou ? 'Mensagem copiada.' : 'Não deu para copiar. Segure o dedo na mensagem para copiar.');
     });

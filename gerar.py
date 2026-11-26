@@ -7,6 +7,8 @@ Cada programação é uma pasta AAAA-MM-DD-nome com:
   arte.png      a arte de post ou feed (pode ser .jpg); no Resumo semanal, o story
 
 Sem arte, a página fica só com a mensagem e o botão abre o WhatsApp com o texto.
+Sem mensagem.txt (só a arte), a página manda só a arte: toda imagem da Divulgação WhatsApp
+tem o seu botão, mesmo antes de a mensagem chegar.
 
 Story do Instagram é uma pasta AAAA-MM-DD-nome-story com:
   titulo.txt    linha 1: "Story · nome"; linha 2: dia e horário
@@ -44,11 +46,8 @@ PAGINA = """<!doctype html>
   <p class="quando">{quando}</p>
 {imagem}  <button id="enviar" class="enviar" type="button" data-arte="{arte}" data-nome="{nome}">Enviar no WhatsApp</button>
   <p id="aviso" class="aviso" role="status"></p>
-  <h2>{titulo_mensagem}</h2>
-  <pre id="mensagem" class="mensagem">{mensagem}</pre>
-  <div class="extras">
-    <button id="copiar" type="button">Copiar mensagem</button>
-{baixar}  </div>
+{bloco_mensagem}  <div class="extras">
+{copiar}{baixar}  </div>
 </main>
 <script src="../enviar.js"></script>
 </body>
@@ -174,8 +173,11 @@ def gerar():
             gerar_story(pasta, titulo, quando, sugestao)
             programacoes.append((pasta.name, titulo, quando))
             continue
-        mensagem = (pasta / "mensagem.txt").read_text(encoding="utf-8").rstrip("\n")
+        arquivo_mensagem = pasta / "mensagem.txt"
+        mensagem = arquivo_mensagem.read_text(encoding="utf-8").rstrip("\n") if arquivo_mensagem.exists() else ""
         arte = achar_arte(pasta)
+        if not mensagem and not arte:
+            raise SystemExit(f"{pasta.name}: falta a arte ou a mensagem")
         if arte:
             nome = pasta.name + arte.suffix
             og_imagem = f'<meta property="og:image" content="{ENDERECO}/{pasta.name}/{arte.name}">\n'
@@ -193,8 +195,12 @@ def gerar():
                 imagem=imagem,
                 arte=arte.name if arte else "",
                 nome=nome,
-                titulo_mensagem=titulo_mensagem,
-                mensagem=html.escape(mensagem),
+                bloco_mensagem=(
+                    f'  <h2>{titulo_mensagem}</h2>\n  <pre id="mensagem" class="mensagem">{html.escape(mensagem)}</pre>\n'
+                    if mensagem
+                    else '  <pre id="mensagem" class="mensagem" hidden></pre>\n'
+                ),
+                copiar='    <button id="copiar" type="button">Copiar mensagem</button>\n' if mensagem else "",
                 baixar=baixar,
             ),
             encoding="utf-8",
